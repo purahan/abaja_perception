@@ -43,7 +43,7 @@ Current model status (update this as you retrain):
 ## Getting the code
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/purahan/abaja_perception.git
 cd abaja_perception
 ```
 
