@@ -3,6 +3,50 @@
 ROS2 package for the aBAJA SAEINDIA 2026 Object Detection and Classification
 event. Target platform: Jetson Orin Nano/NX.
 
+## Requirements
+
+- **ROS2 Humble** (prerequisite, installed via apt, not pip): https://docs.ros.org/en/humble/Installation.html
+- Runtime Python deps: `pip3 install -r requirements.txt --break-system-packages`
+- Training/dataset Python deps (separate venv, see below): `pip install -r requirements-training.txt`
+
+```bash
+python3 -m venv ~/abaja_training_env
+source ~/abaja_training_env/bin/activate
+pip install -r requirements-training.txt
+```
+Keeping these two dependency sets in separate environments avoids a
+known numpy/opencv/matplotlib version conflict between `fiftyone` and
+ROS2's system Python (see git history / commit messages if curious why).
+
+## Trained models
+
+Trained weights live in `models/`, not `runs/` (which is gitignored since
+full training runs are large and regenerable). After training:
+```bash
+mkdir -p models
+cp runs/detect/train/weights/best.pt models/abaja_v1.pt
+cp runs/detect/train/results.png models/abaja_v1_results.png
+cp runs/detect/train/results.csv models/abaja_v1_results.csv
+```
+Then set `torch_weights` in `config/classes.yaml` to point at
+`models/abaja_v1.pt` and `use_custom_classes: true`.
+
+Current model status (update this as you retrain):
+- Classes with real training data: 13 of 15 (missing: traffic_cone)
+- Overall mAP50: 0.84 (see `models/abaja_v1_results.png` for full breakdown)
+- Known weak spots: bicyclist (COCO's bicycle class doesn't guarantee a
+  rider), car, cow (only 51 training images)
+- Sign/light/barricade classes (~0.99 mAP50) are validated only against
+  synthetic data so far - needs a real-photo sanity check before trusting
+  those numbers in the field
+
+## Getting the code
+
+```bash
+git clone <your-repo-url>
+cd abaja_perception
+```
+
 ## Workflow
 
 1. **Data**: build a YOLO-format dataset covering all 15 PART C classes.
@@ -13,8 +57,9 @@ event. Target platform: Jetson Orin Nano/NX.
      know what soft-targets the organizers use.
 
 2. **Train**: standard Ultralytics YOLO fine-tuning (`yolo detect train
-   data=... model=yolov8s.pt`). Not included here — this repo starts from
-   a trained `best.pt`.
+   data=... model=yolov8s.pt`). A trained checkpoint is included in
+   `models/` (see the "Trained models" section above) — re-run this step
+   yourself once you add more data (e.g. traffic_cone, more cow images).
 
 3. **Export**: `scripts/export_tensorrt.py` converts `best.pt` -> TensorRT
    engine (FP16 or INT8) and prints an FPS benchmark. Run both precisions,

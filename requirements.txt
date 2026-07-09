@@ -1,0 +1,17 @@
+# Runtime dependencies for abaja_perception (the ROS2 node itself).
+#
+# PREREQUISITE (not installable via pip): ROS2 Humble must already be
+# installed and sourced - see https://docs.ros.org/en/humble/Installation.html
+# This file only covers the Python packages layered on top of that.
+
+numpy>=2.0
+opencv-python>=4.8       # NOT opencv-python-headless - that build has no GUI
+                         # support and will break the live preview window
+ultralytics>=8.0
+pyyaml>=6.0
+
+# TensorRT + pycuda are NOT listed here - they ship with JetPack on the
+# actual Jetson hardware and shouldn't be pip-installed separately.
+# backend: "torch" in config/classes.yaml works with just the above;
+# backend: "trt" additionally needs the Jetson's own JetPack-provided
+# tensorrt/pycuda, only available on-device.

@@ -1,0 +1,17 @@
+# Dependencies for dataset preparation and training scripts (scripts/*.py).
+#
+# IMPORTANT: install these in a SEPARATE Python virtual environment from
+# your ROS2 setup, not the same one requirements.txt goes into. Mixing
+# fiftyone/matplotlib's dependency chain with the ROS2 environment is a
+# known source of numpy/opencv version conflicts (ask me if you hit
+# "AttributeError: _ARRAY_API not found" - it's this exact issue).
+#
+#   python3 -m venv ~/abaja_training_env
+#   source ~/abaja_training_env/bin/activate
+#   pip install -r requirements-training.txt
+
+ultralytics>=8.0
+fiftyone>=1.0
+kagglehub>=0.3
+pyyaml>=6.0
+pillow>=10.0
