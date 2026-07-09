@@ -1,0 +1,89 @@
+# abaja_perception/config/classes.yaml
+#
+# One entry per PART C target object. `fn_penalty` mirrors the rulebook:
+# -3 for pedestrian/cow/bicyclist, -2 for everything else. `conf_threshold`
+# is your starting point per class — sweep these with
+# scripts/threshold_sweep.py against your own validation set, don't trust
+# these numbers blindly. High-fn_penalty classes start with a lower
+# threshold (favor recall); low-risk / easily-confused classes start higher
+# (favor precision) since a wrong-class detection there only nets +2
+# instead of costing a false positive.
+
+classes:
+  speed_limit_10:
+    id: 0
+    conf_threshold: 0.35
+    fn_penalty: 2
+  speed_limit_15:
+    id: 1
+    conf_threshold: 0.35
+    fn_penalty: 2
+  speed_limit_30:
+    id: 2
+    conf_threshold: 0.35
+    fn_penalty: 2
+  speed_limit_60:
+    id: 3
+    conf_threshold: 0.35
+    fn_penalty: 2
+  speed_limit_80:
+    id: 4
+    conf_threshold: 0.35
+    fn_penalty: 2
+  traffic_light_red:
+    id: 5
+    conf_threshold: 0.40
+    fn_penalty: 2
+  traffic_light_green:
+    id: 6
+    conf_threshold: 0.40
+    fn_penalty: 2
+  traffic_light_amber:
+    id: 7
+    conf_threshold: 0.40
+    fn_penalty: 2
+  traffic_cone:
+    id: 8
+    conf_threshold: 0.40
+    fn_penalty: 2
+  pedestrian:
+    id: 9
+    conf_threshold: 0.25   # biased toward recall — highest fn penalty
+    fn_penalty: 3
+  car:
+    id: 10
+    conf_threshold: 0.40
+    fn_penalty: 2
+  bicyclist:
+    id: 11
+    conf_threshold: 0.25   # biased toward recall
+    fn_penalty: 3
+  two_wheeler:
+    id: 12
+    conf_threshold: 0.40
+    fn_penalty: 2
+  cow:
+    id: 13
+    conf_threshold: 0.25   # biased toward recall
+    fn_penalty: 3
+  steel_barricade:
+    id: 14
+    conf_threshold: 0.40
+    fn_penalty: 2
+
+# Global settings
+nms_iou_threshold: 0.45
+smoothing_window: 5          # frames of majority-vote class smoothing (anti-flicker)
+min_track_hits: 2            # frames a track must persist before being reported as "detected"
+track_iou_threshold: 0.3     # IoU gate for associating detections to existing tracks
+input_size: [640, 640]
+
+# Backend: "torch" for dev-machine/laptop testing (no TensorRT/Jetson
+# needed), "trt" for the real Jetson deployment. Start with "torch".
+backend: "torch"
+torch_weights: "yolov8n.pt"   # pretrained COCO weights for pipeline sanity check;
+                              # swap to your fine-tuned best.pt once trained
+use_custom_classes: false     # true once torch_weights is YOUR 15-class fine-tuned model
+
+# Only used when backend: "trt"
+engine_path: "/path/to/your/model.engine"   # TODO: set after TensorRT export on the Jetson
